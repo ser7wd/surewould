@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "../src/LaunchpadFactory.sol";
 import "../test/mocks/MockUniswapV2Router.sol";
 
-/// @notice One-command deploy for the Surewould launchpad.
+/// @notice One-command deploy for the Stampede launchpad.
 ///
 /// TESTNET (no Uniswap deployed there): deploys MockUniswapV2Router as a stand-in,
 /// then the factory pointed at it. Set USE_MOCK_ROUTER=true.
@@ -36,7 +36,15 @@ contract Deploy is Script {
             console.log("Using existing router:", router);
         }
 
-        LaunchpadFactory factory = new LaunchpadFactory(router, feeRecipient);
+        // Curve parameters — env-overridable, defaulting to mainnet reference values.
+        // Testnet demo scale: VIRTUAL_ETH=1100000000000000 THRESHOLD=3000000000000000 (wei)
+        uint256 virtualEth = vm.envOr("VIRTUAL_ETH", uint256(1.1 ether));
+        uint256 virtualTokens = vm.envOr("VIRTUAL_TOKENS", uint256(1_073_000_000 * 1e18));
+        uint256 threshold = vm.envOr("THRESHOLD", uint256(3 ether));
+
+        LaunchpadFactory factory = new LaunchpadFactory(router, feeRecipient, virtualEth, virtualTokens, threshold);
+        console.log("Curve: virtualEth (wei):", virtualEth);
+        console.log("Curve: migration threshold (wei):", threshold);
         console.log("LaunchpadFactory deployed:", address(factory));
         console.log("Fee recipient:", feeRecipient);
 

@@ -25,17 +25,22 @@ contract LaunchpadFactory {
     address public feeRecipient;
     address public owner;
 
-    // --- Tunable launch parameters. Same for every token from this factory. ---
+    // --- Fixed tokenomics. Same for every token from this factory. ---
     uint256 public constant TOTAL_SUPPLY = 1_000_000_000 * 1e18;   // 1B tokens per launch
     uint256 public constant CURVE_ALLOCATION = 800_000_000 * 1e18; // 800M sellable on the curve
     // remaining 200M sits in this factory, reserved to pair with raised ETH at migration
 
-    uint256 public constant VIRTUAL_ETH_RESERVES = 3 ether;                 // starting curve "depth" — tune this
-    uint256 public constant VIRTUAL_TOKEN_RESERVES = 1_073_000_000 * 1e18;  // sets initial price
-    // With the reserves above, the 800M curve allocation fully depletes at ~8.79 ETH of net
-    // (post-fee) inflow. MIGRATION_THRESHOLD must stay comfortably below that or large buys
-    // near the threshold can revert instead of migrating. 8 ETH leaves ~0.79 ETH of headroom.
-    uint256 public constant MIGRATION_THRESHOLD = 8 ether;
+    // --- Curve shape, set at deploy time so one audited contract serves every network scale.
+    // Mainnet reference values (pump.fun-shaped, ~4.7x mcap/raise, 13.9x price multiple):
+    //   VIRTUAL_ETH_RESERVES   = 1.1 ether
+    //   VIRTUAL_TOKEN_RESERVES = 1_073_000_000e18
+    //   MIGRATION_THRESHOLD    = 3 ether   (curve depletes at ~3.22 ETH net -> 7.4% headroom)
+    // Testnet demo = same shape /1000: 0.0011 ether / same tokens / 0.003 ether.
+    // IMPORTANT: these three are load-bearing on each other. If you change them, verify
+    // threshold < depletion point: ALLOC * Ve / (Vt - ALLOC), and rerun the fuzz suite.
+    uint256 public immutable VIRTUAL_ETH_RESERVES;
+    uint256 public immutable VIRTUAL_TOKEN_RESERVES;
+    uint256 public immutable MIGRATION_THRESHOLD;
 
     mapping(address => address) public curveOf;  // token => its curve
     mapping(address => bool) public isCurve;      // curve => is a real curve from this factory
@@ -44,10 +49,25 @@ contract LaunchpadFactory {
     event TokenLaunched(address indexed token, address indexed curve, address indexed creator, string name, string symbol);
     event MigrationComplete(address indexed token, uint256 ethAmount, uint256 tokenAmount, uint256 lpTokens);
 
-    constructor(address uniswapRouter_, address feeRecipient_) {
+    constructor(
+        address uniswapRouter_,
+        address feeRecipient_,
+        uint256 virtualEthReserves_,
+        uint256 virtualTokenReserves_,
+        uint256 migrationThreshold_
+    ) {
+        require(virtualTokenReserves_ > CURVE_ALLOCATION, "factory: bad virtual token reserves");
+        // threshold must sit below the raise at which the curve allocation depletes,
+        // otherwise buys near the threshold revert instead of migrating
+        uint256 depletionRaise = (CURVE_ALLOCATION * virtualEthReserves_) / (virtualTokenReserves_ - CURVE_ALLOCATION);
+        require(migrationThreshold_ < depletionRaise, "factory: threshold exceeds curve capacity");
+
         uniswapRouter = uniswapRouter_;
         feeRecipient = feeRecipient_;
         owner = msg.sender;
+        VIRTUAL_ETH_RESERVES = virtualEthReserves_;
+        VIRTUAL_TOKEN_RESERVES = virtualTokenReserves_;
+        MIGRATION_THRESHOLD = migrationThreshold_;
     }
 
     /// @notice Anyone can launch a token. No admin approval, matching pump.fun's permissionless model.

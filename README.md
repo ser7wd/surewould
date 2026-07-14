@@ -1,4 +1,4 @@
-# Surewould — Robinhood Chain Launchpad
+# Robinhood Chain Launchpad — Bonding Curve v1
 
 Pump.fun-style token launcher: anyone calls `launch()` to create a token with zero
 presale, trading starts immediately on a constant-product bonding curve, and once
@@ -30,28 +30,31 @@ a real forge build + a mock Uniswap router, not just written and hoped for:
 forge test -vv
 ```
 
-Writing and running these caught two real bugs that are now fixed in the contracts:
+Development caught three real bugs, all fixed and regression-tested: a migration
+threshold that exceeded the curve's token capacity (big buys near graduation would
+revert forever), a 1-wei rounding gap that could reject legitimate sells, and a
+migration-bricking grief where a pre-seeded Uniswap pair's ETH refund would revert
+against the factory. The constructor now enforces threshold < depletion capacity.
 
-1. **Token supply could run dry before migration.** The original constants let the
-   curve's 800M token allocation fully sell out at ~8.79 ETH raised, but migration
-   wasn't triggered until 12 ETH — so a big buy near the threshold would revert
-   instead of migrating. `MIGRATION_THRESHOLD` is now 8 ETH, leaving margin.
-2. **A 1-wei rounding gap on sells.** Selling back tokens immediately after buying
-   them could compute an ETH payout 1 wei above what the curve actually held,
-   reverting a legitimate sell. `sell()` now clamps its payout to `realEthReserves`.
+If you change any curve parameter, rerun `forge test --fuzz-runs 2000` — the
+parameters are load-bearing on each other, not independent knobs.
 
-If you change `VIRTUAL_ETH_RESERVES`, `VIRTUAL_TOKEN_RESERVES`, `CURVE_ALLOCATION`,
-or `MIGRATION_THRESHOLD`, rerun the fuzz test (`forge test --fuzz-runs 2000`) before
-trusting the new numbers — they're load-bearing on each other, not independent knobs.
+## Curve economics (pump.fun-shaped, verified July 2026 prices)
+Curve parameters are constructor args set at deploy time (env vars in Deploy.s.sol):
 
-## Before you deploy anything real, tune these in `LaunchpadFactory.sol`
-- `VIRTUAL_ETH_RESERVES` (3 ether) — sets the starting price curve steepness
-- `MIGRATION_THRESHOLD` (8 ether) — real ETH raised before graduating to Uniswap
-- `CURVE_ALLOCATION` / `TOTAL_SUPPLY` split — how many tokens are sellable vs. reserved for LP
+**Mainnet reference** — `VIRTUAL_ETH=1.1 ether`, `VIRTUAL_TOKENS=1,073,000,000e18`,
+`THRESHOLD=3 ether`:
+- Graduates at 3 ETH raised (~$5.4K at ETH $1,800) — just under pump.fun's ~$6.5K bar
+- Graduation mcap ~14.2 ETH (~$25.6K): a 4.7x mcap/raise ratio (pump.fun structural: ~4.8x)
+- 13.9x price multiple start→graduation (pump.fun: ~14.7x)
+- Curve depletes at 3.22 ETH → 7.4% safety headroom above threshold (constructor-enforced)
+- Pool receives 3 ETH + ~215M tokens at a price within 2% of the final curve price
 
-Robinhood Chain gas is sub-cent and ETH is the gas token, so these ETH-denominated
-thresholds need real thought — 8 ETH to graduate might be way too high or low
-depending on what kind of launches you expect. Model this before mainnet use.
+**Testnet demo** — same shape ÷1000: `VIRTUAL_ETH=1100000000000000`
+`THRESHOLD=3000000000000000` (wei). Graduation at 0.003 ETH fits a faucet budget.
+
+Note: thresholds are ETH-denominated, so a big ETH price move shifts the dollar bar
+(same exposure pump.fun has with SOL). Revisit if ETH doubles.
 
 ## Confirmed addresses (from Uniswap's official deployments page, July 2026)
 - **Robinhood Chain mainnet (4663) Uniswap V2 Router02:** `0x89e5db8b5aa49aa85ac63f691524311aeb649eba`
@@ -68,7 +71,7 @@ any mainnet deploy — addresses in a README can go stale.
    like Slither), add real slippage bounds in `completeMigration` (currently `0, 0` —
    fine for testing, not for mainnet), and consider a max-buy-per-tx cap to slow down
    sniping bots.
-2. **Frontend** — done: `index.html` (wallet connect, launch, trade, graduation progress).
+2. **Frontend** — done: `stampede.html` (wallet connect, launch, trade, graduation progress).
 3. **Indexer** — you already have the start of this in Prospector; extend it to watch
    `TokenLaunched` and `Trade` events for a live feed.
 

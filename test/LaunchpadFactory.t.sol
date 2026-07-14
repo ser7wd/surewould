@@ -18,7 +18,10 @@ contract LaunchpadFactoryTest is Test {
 
     function setUp() public {
         router = new MockUniswapV2Router();
-        factory = new LaunchpadFactory(address(router), feeRecipient);
+        factory = new LaunchpadFactory(
+            address(router), feeRecipient,
+            1.1 ether, 1_073_000_000 * 1e18, 3 ether
+        );
 
         vm.deal(alice, 1000 ether);
         vm.deal(bob, 1000 ether);
@@ -70,7 +73,7 @@ contract LaunchpadFactoryTest is Test {
     }
 
     function test_curve_onlyFactoryCanInitialize() public {
-        BondingCurve freshCurve = new BondingCurve(address(factory), feeRecipient, 3 ether, 1_073_000_000e18, 12 ether);
+        BondingCurve freshCurve = new BondingCurve(address(factory), feeRecipient, 1.1 ether, 1_073_000_000e18, 3 ether);
         vm.expectRevert("curve: not factory");
         freshCurve.initialize(address(0xdead), 1);
     }
@@ -99,7 +102,7 @@ contract LaunchpadFactoryTest is Test {
         uint256 priceBefore = curve.getPrice();
 
         vm.prank(alice);
-        curve.buy{value: 5 ether}(0);
+        curve.buy{value: 2 ether}(0);
 
         uint256 priceAfter = curve.getPrice();
         assertGt(priceAfter, priceBefore, "price should rise after a buy");
@@ -109,11 +112,11 @@ contract LaunchpadFactoryTest is Test {
         (LaunchToken token, BondingCurve curve) = _launch();
 
         vm.prank(alice);
-        curve.buy{value: 2 ether}(0);
+        curve.buy{value: 1 ether}(0);
         uint256 aliceTokens = token.balanceOf(alice);
 
         vm.prank(bob);
-        curve.buy{value: 2 ether}(0);
+        curve.buy{value: 1 ether}(0);
         uint256 bobTokens = token.balanceOf(bob);
 
         assertLt(bobTokens, aliceTokens, "buying into a pumped curve should yield fewer tokens for the same ETH");
@@ -139,7 +142,7 @@ contract LaunchpadFactoryTest is Test {
         (, BondingCurve curve) = _launch();
 
         vm.prank(alice);
-        curve.buy{value: 8.5 ether}(0); // clears the 8 ETH threshold, triggers migration
+        curve.buy{value: 3.1 ether}(0); // net 3.069 ETH clears the 3 ETH threshold, triggers migration
         assertTrue(curve.migrated());
 
         vm.expectRevert("curve: migrated");
@@ -195,7 +198,7 @@ contract LaunchpadFactoryTest is Test {
         (LaunchToken token, BondingCurve curve) = _launch();
 
         vm.startPrank(alice);
-        curve.buy{value: 3 ether}(0);
+        curve.buy{value: 2.5 ether}(0);
         uint256 tokens = token.balanceOf(alice);
         token.approve(address(curve), tokens);
         curve.sell(tokens, 0);
@@ -212,11 +215,11 @@ contract LaunchpadFactoryTest is Test {
         (, BondingCurve curve) = _launch();
 
         vm.prank(alice);
-        curve.buy{value: 7.5 ether}(0);
+        curve.buy{value: 2.5 ether}(0);
         assertFalse(curve.migrated(), "should not migrate before threshold");
 
         vm.prank(bob);
-        curve.buy{value: 1 ether}(0);
+        curve.buy{value: 0.6 ether}(0);
         assertTrue(curve.migrated(), "should migrate once threshold is crossed");
     }
 
@@ -224,7 +227,7 @@ contract LaunchpadFactoryTest is Test {
         (LaunchToken token, BondingCurve curve) = _launch();
 
         vm.prank(alice);
-        curve.buy{value: 8.5 ether}(0);
+        curve.buy{value: 3.1 ether}(0);
         assertTrue(curve.migrated());
 
         // router should hold the paired tokens
@@ -245,7 +248,7 @@ contract LaunchpadFactoryTest is Test {
         assertEq(factoryReserveBefore, factory.TOTAL_SUPPLY() - factory.CURVE_ALLOCATION());
 
         vm.prank(alice);
-        curve.buy{value: 8.5 ether}(0);
+        curve.buy{value: 3.1 ether}(0);
 
         // after migration, factory should have forwarded everything to the router
         assertEq(token.balanceOf(address(factory)), 0);
@@ -270,13 +273,16 @@ contract LaunchpadFactoryTest is Test {
         // the pair already exists at a different ratio (e.g. a griefer pre-seeded it).
         // If the factory can't receive that refund, migration reverts forever.
         MockRefundingRouter refundingRouter = new MockRefundingRouter();
-        LaunchpadFactory factory2 = new LaunchpadFactory(address(refundingRouter), feeRecipient);
+        LaunchpadFactory factory2 = new LaunchpadFactory(
+            address(refundingRouter), feeRecipient,
+            1.1 ether, 1_073_000_000 * 1e18, 3 ether
+        );
 
         (address tokenAddr, address curveAddr) = factory2.launch("Griefed Coin", "GRIEF");
         BondingCurve curve = BondingCurve(payable(curveAddr));
 
         vm.prank(alice);
-        curve.buy{value: 8.5 ether}(0); // must not revert despite the router refunding half the ETH
+        curve.buy{value: 3.1 ether}(0); // must not revert despite the router refunding half the ETH
 
         assertTrue(curve.migrated(), "migration should complete even when the router refunds ETH");
         assertGt(refundingRouter.balanceOf(address(0xdead)), 0, "LP should still be burned");
@@ -298,7 +304,7 @@ contract LaunchpadFactoryTest is Test {
     // ---------- Fuzz ----------
 
     function testFuzz_buy_neverGivesOutMoreThanRealTokenReserves(uint96 ethAmount) public {
-        vm.assume(ethAmount > 0.001 ether && ethAmount < 8 ether); // stay under migration threshold
+        vm.assume(ethAmount > 0.001 ether && ethAmount < 2.9 ether); // stay under migration threshold
         (LaunchToken token, BondingCurve curve) = _launch();
 
         uint256 reservesBefore = curve.realTokenReserves();
