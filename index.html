@@ -708,7 +708,18 @@
           const s = document.getElementById("setupPanel");
           if (s) s.style.display = "none";
         }
+        showFaucet();
       })();
+
+      // Testnet visitors need to know where ETH comes from before they get stuck, not after.
+      function showFaucet() {
+        document
+          .getElementById("faucetLine")
+          .classList.toggle(
+            "show",
+            document.getElementById("networkSelect").value === "testnet",
+          );
+      }
 
       async function refreshBalance() {
         if (!provider || !userAddr) return;
@@ -717,13 +728,10 @@
           const eth = Number(ethers.formatEther(bal));
           document.getElementById("balLabel").textContent =
             eth.toFixed(eth < 0.01 ? 5 : 4) + " ETH";
-          const isTestnet =
-            document.getElementById("networkSelect").value === "testnet";
-          const low = eth < 0.0005;
-          document.getElementById("walletPill").classList.toggle("low", low);
           document
-            .getElementById("faucetLine")
-            .classList.toggle("show", isTestnet && low);
+            .getElementById("walletPill")
+            .classList.toggle("low", eth < 0.0005);
+          showFaucet();
         } catch (_) {}
       }
 
@@ -892,6 +900,7 @@
             .then(() => {
               document.getElementById("netLabel").textContent =
                 short(userAddr) + " · " + net().name;
+              showFaucet();
               refreshBalance();
               loadTokens();
             })
