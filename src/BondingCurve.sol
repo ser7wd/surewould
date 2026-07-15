@@ -68,19 +68,46 @@ contract BondingCurve is ReentrancyGuard {
     }
 
     function buy(uint256 minTokensOut) external payable nonReentrant {
+        _buyFor(msg.sender, minTokensOut);
+    }
+
+    /// @dev Factory calls this during a paid launch so the creator's first buy lands in the
+    /// same transaction that creates the token — no block exists for snipers to front-run.
+    function buyFor(address recipient, uint256 minTokensOut) external payable nonReentrant {
+        _buyFor(recipient, minTokensOut);
+    }
+
+    /// @dev Pump.fun-style fill: if the buy asks for more tokens than the curve still holds,
+    /// it is CAPPED at the remaining inventory and the unused ETH is refunded — the buy never
+    /// reverts for exceeding the curve. The final buy empties the curve and triggers migration.
+    function _buyFor(address recipient, uint256 minTokensOut) internal {
         require(initialized, "curve: not initialized");
         require(!migrated, "curve: migrated");
         require(msg.value > 0, "curve: zero eth");
 
         uint256 fee = (msg.value * FEE_BPS) / 10000;
         uint256 ethIn = msg.value - fee;
+        uint256 refund = 0;
 
         uint256 k = virtualEthReserves * virtualTokenReserves;
         uint256 newVirtualEthReserves = virtualEthReserves + ethIn;
         uint256 newVirtualTokenReserves = k / newVirtualEthReserves;
         uint256 tokensOut = virtualTokenReserves - newVirtualTokenReserves;
 
-        require(tokensOut <= realTokenReserves, "curve: insufficient token liquidity");
+        if (tokensOut > realTokenReserves) {
+            // Cap the fill at remaining inventory and recompute the ETH actually needed.
+            tokensOut = realTokenReserves;
+            newVirtualTokenReserves = virtualTokenReserves - tokensOut;
+            newVirtualEthReserves = k / newVirtualTokenReserves;
+            uint256 ethNeeded = newVirtualEthReserves - virtualEthReserves;
+            // Recompute the fee on the ETH actually used (gross it back up, rounding up).
+            uint256 grossNeeded = (ethNeeded * 10000 + 9899) / 9900;
+            if (grossNeeded > msg.value) grossNeeded = msg.value; // rounding guard
+            fee = grossNeeded - ethNeeded;
+            refund = msg.value - grossNeeded;
+            ethIn = ethNeeded;
+        }
+
         require(tokensOut >= minTokensOut, "curve: slippage");
 
         virtualEthReserves = newVirtualEthReserves;
@@ -93,11 +120,16 @@ contract BondingCurve is ReentrancyGuard {
             require(sentFee, "curve: fee transfer failed");
         }
 
-        require(token.transfer(msg.sender, tokensOut), "curve: token transfer failed");
+        require(token.transfer(recipient, tokensOut), "curve: token transfer failed");
 
-        emit Trade(msg.sender, true, msg.value, tokensOut, getPrice());
+        if (refund > 0) {
+            (bool sentRefund, ) = recipient.call{value: refund}("");
+            require(sentRefund, "curve: refund failed");
+        }
 
-        if (realEthReserves >= migrationThreshold) {
+        emit Trade(recipient, true, msg.value - refund, tokensOut, getPrice());
+
+        if (realEthReserves >= migrationThreshold || realTokenReserves == 0) {
             _migrate();
         }
     }

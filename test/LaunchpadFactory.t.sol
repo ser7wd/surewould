@@ -304,15 +304,85 @@ contract LaunchpadFactoryTest is Test {
     // ---------- Fuzz ----------
 
     function testFuzz_buy_neverGivesOutMoreThanRealTokenReserves(uint96 ethAmount) public {
-        vm.assume(ethAmount > 0.001 ether && ethAmount < 2.9 ether); // stay under migration threshold
+        // range deliberately crosses the depletion boundary to exercise the cap-and-refund path
+        vm.assume(ethAmount > 0.001 ether && ethAmount < 50 ether);
         (LaunchToken token, BondingCurve curve) = _launch();
 
         uint256 reservesBefore = curve.realTokenReserves();
+        uint256 aliceEthBefore = alice.balance;
 
         vm.prank(alice);
         curve.buy{value: ethAmount}(0);
 
-        assertLe(token.balanceOf(alice), reservesBefore);
-        assertGe(curve.realTokenReserves(), 0);
+        assertLe(token.balanceOf(alice), reservesBefore, "never mints from thin air");
+        // conservation: what alice spent (net of refund) never exceeds what she sent
+        assertLe(aliceEthBefore - alice.balance, ethAmount, "refund never exceeds payment");
+    }
+
+    // ---------- Cap-and-refund (pump.fun-style fill) ----------
+
+    function test_buy_oversizedBuyIsCappedAndRefunded() public {
+        (LaunchToken token, BondingCurve curve) = _launch();
+
+        uint256 reserves = curve.realTokenReserves();
+        uint256 ethBefore = alice.balance;
+
+        // 10 ETH into a curve that can only absorb ~3.2 — old contract reverted here
+        vm.prank(alice);
+        curve.buy{value: 10 ether}(0);
+
+        assertEq(token.balanceOf(alice), reserves, "gets the entire remaining inventory");
+        assertTrue(curve.migrated(), "emptying the curve graduates it");
+        uint256 spent = ethBefore - alice.balance;
+        assertLt(spent, 3.5 ether, "only charged for what the curve could sell");
+        assertGt(spent, 3 ether, "actually paid for the tokens received");
+    }
+
+    function test_buy_refundGoesToBuyerNotCurve() public {
+        (, BondingCurve curve) = _launch();
+        vm.prank(alice);
+        curve.buy{value: 20 ether}(0);
+        assertEq(address(curve).balance, 0, "no stray eth left on the curve");
+        assertGt(alice.balance, 980 ether, "bulk of the 20 came back");
+    }
+
+    function test_buy_secondMaxBuyerRevertsCleanlyPostMigration() public {
+        (, BondingCurve curve) = _launch();
+        vm.prank(alice);
+        curve.buy{value: 10 ether}(0); // empties + migrates
+
+        vm.expectRevert("curve: migrated");
+        vm.prank(bob);
+        curve.buy{value: 10 ether}(0);
+    }
+
+    // ---------- Creator first-buy at launch (anti-snipe) ----------
+
+    function test_launch_withEthExecutesCreatorFirstBuy() public {
+        vm.prank(alice);
+        (address tokenAddr, address curveAddr) = factory.launch{value: 1 ether}("Sniper Proof", "SAFE");
+
+        LaunchToken token = LaunchToken(tokenAddr);
+        BondingCurve curve = BondingCurve(payable(curveAddr));
+
+        assertGt(token.balanceOf(alice), 0, "creator holds tokens from the same tx as creation");
+        assertGt(curve.realEthReserves(), 0.98 ether, "curve credited with the buy");
+    }
+
+    function test_launch_withoutEthStillWorks() public {
+        vm.prank(alice);
+        (address tokenAddr, ) = factory.launch("Free Launch", "FREE");
+        assertEq(LaunchToken(tokenAddr).balanceOf(alice), 0);
+    }
+
+    function test_launch_withOversizedEthCapsAndGraduatesImmediately() public {
+        vm.prank(alice);
+        uint256 before = alice.balance;
+        (address tokenAddr, address curveAddr) = factory.launch{value: 10 ether}("Instant Grad", "GRAD");
+
+        BondingCurve curve = BondingCurve(payable(curveAddr));
+        assertTrue(curve.migrated(), "big enough first buy graduates at birth");
+        assertEq(LaunchToken(tokenAddr).balanceOf(alice), factory.CURVE_ALLOCATION(), "creator bought the whole curve");
+        assertLt(before - alice.balance, 3.5 ether, "excess refunded");
     }
 }

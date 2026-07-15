@@ -71,7 +71,9 @@ contract LaunchpadFactory {
     }
 
     /// @notice Anyone can launch a token. No admin approval, matching pump.fun's permissionless model.
-    function launch(string calldata name, string calldata symbol) external returns (address tokenAddr, address curveAddr) {
+    /// Optionally payable: any ETH sent executes the creator's first buy in the SAME transaction
+    /// the token is created in, so snipers have no block in which to front-run the creator.
+    function launch(string calldata name, string calldata symbol) external payable returns (address tokenAddr, address curveAddr) {
         // Curve must exist before the token, since the token mints directly to the curve's address.
         BondingCurve curve = new BondingCurve(
             address(this),
@@ -97,6 +99,10 @@ contract LaunchpadFactory {
         allTokens.push(address(newToken));
 
         emit TokenLaunched(address(newToken), address(curve), msg.sender, name, symbol);
+
+        if (msg.value > 0) {
+            curve.buyFor{value: msg.value}(msg.sender, 0);
+        }
         return (address(newToken), address(curve));
     }
 

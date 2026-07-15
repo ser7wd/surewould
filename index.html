@@ -1,1189 +1,589 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Surewould — Robinhood Chain Launchpad</title>
-    <style>
-      @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap");
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surewould — Robinhood Chain Launchpad</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap');
 
-      :root {
-        --bg: #0a0a0c;
-        --card: #141417;
-        --card-2: #1b1b1f;
-        --card-edge: #232329;
-        --text: #f5f5f7;
-        --dim: #8e8e96;
-        --dimmer: #5a5a62;
-        --accent: #ff4d7c;
-        --good: #63d68a;
-        --danger: #ff5a5a;
-        --purple: #7a4dd8;
-        --radius: 18px;
-        --pill: 999px;
-      }
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        background:
-          radial-gradient(
-            ellipse 60% 40% at 30% 18%,
-            rgba(150, 40, 60, 0.25) 0%,
-            transparent 60%
-          ),
-          radial-gradient(
-            ellipse 50% 35% at 75% 8%,
-            rgba(90, 60, 160, 0.18) 0%,
-            transparent 60%
-          ),
-          var(--bg);
-        color: var(--text);
-        font-family:
-          "Manrope",
-          -apple-system,
-          sans-serif;
-        min-height: 100vh;
-        padding: 28px 18px 90px;
-        -webkit-font-smoothing: antialiased;
-      }
-      .wrap {
-        max-width: 720px;
-        margin: 0 auto;
-      }
+  :root{
+    --bg:#0a0a0c; --card:#141417; --card-2:#1b1b1f; --card-edge:#232329;
+    --text:#f5f5f7; --dim:#8e8e96; --dimmer:#5a5a62;
+    --accent:#ff4d7c; --good:#63d68a; --danger:#ff5a5a; --purple:#7a4dd8;
+    --radius:18px; --pill:999px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 60% 40% at 30% 18%, rgba(150,40,60,.25) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 35% at 75% 8%, rgba(90,60,160,.18) 0%, transparent 60%),
+      var(--bg);
+    color:var(--text); font-family:'Manrope',-apple-system,sans-serif;
+    min-height:100vh; padding:28px 18px 90px; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:720px;margin:0 auto;}
 
-      header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-bottom: 6px;
-      }
-      .brand h1 {
-        font-weight: 800;
-        font-size: clamp(30px, 6vw, 44px);
-        letter-spacing: -1px;
-      }
-      .tag {
-        font-size: 14px;
-        color: var(--dim);
-        font-weight: 500;
-        margin-bottom: 24px;
-        line-height: 1.5;
-      }
+  header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:6px;}
+  .brand h1{font-weight:800;font-size:clamp(30px,6vw,44px);letter-spacing:-1px;}
+  .tag{font-size:14px;color:var(--dim);font-weight:500;margin-bottom:24px;line-height:1.5;}
 
-      .btn {
-        font-family: "Manrope", sans-serif;
-        font-weight: 700;
-        font-size: 14px;
-        background: var(--card-2);
-        border: none;
-        color: var(--text);
-        padding: 12px 22px;
-        cursor: pointer;
-        border-radius: var(--pill);
-        transition: all 0.15s;
-      }
-      .btn:hover {
-        background: #26262c;
-      }
-      .btn:disabled {
-        opacity: 0.35;
-        cursor: default;
-      }
-      .btn.primary {
-        background: var(--accent);
-        color: #fff;
-      }
-      .btn.primary:hover {
-        background: #ff6690;
-        box-shadow: 0 0 24px rgba(255, 77, 124, 0.35);
-      }
-      .btn.go {
-        width: 100%;
-        background: var(--good);
-        color: #07200f;
-        font-size: 15px;
-        padding: 14px;
-      }
-      .btn.go:hover {
-        background: #7ce49f;
-        box-shadow: 0 0 24px rgba(99, 214, 138, 0.3);
-      }
-      .btn.go.sellmode {
-        background: var(--danger);
-        color: #2a0808;
-      }
-      .btn.go.sellmode:hover {
-        background: #ff7676;
-        box-shadow: 0 0 24px rgba(255, 90, 90, 0.3);
-      }
+  .btn{font-family:'Manrope',sans-serif;font-weight:700;font-size:14px;background:var(--card-2);
+    border:none;color:var(--text);padding:12px 22px;cursor:pointer;border-radius:var(--pill);transition:all .15s;}
+  .btn:hover{background:#26262c;}
+  .btn:disabled{opacity:.35;cursor:default;}
+  .btn.primary{background:var(--accent);color:#fff;}
+  .btn.primary:hover{background:#ff6690;box-shadow:0 0 24px rgba(255,77,124,.35);}
+  .btn.go{width:100%;background:var(--good);color:#07200f;font-size:15px;padding:14px;}
+  .btn.go:hover{background:#7ce49f;box-shadow:0 0 24px rgba(99,214,138,.3);}
+  .btn.go.sellmode{background:var(--danger);color:#2a0808;}
+  .btn.go.sellmode:hover{background:#ff7676;box-shadow:0 0 24px rgba(255,90,90,.3);}
 
-      input,
-      select {
-        background: var(--bg);
-        border: 1px solid var(--card-edge);
-        color: var(--text);
-        padding: 12px 14px;
-        font-family: "Manrope", sans-serif;
-        font-weight: 700;
-        font-size: 15px;
-        width: 100%;
-        border-radius: 14px;
-      }
-      input:focus,
-      select:focus {
-        outline: none;
-        border-color: var(--accent);
-      }
-      input::placeholder {
-        color: var(--dimmer);
-        font-weight: 500;
-      }
-      label {
-        font-size: 11px;
-        color: var(--dim);
-        letter-spacing: 0.6px;
-        text-transform: uppercase;
-        font-weight: 700;
-        display: block;
-        margin-bottom: 6px;
-      }
+  input,select{background:var(--bg);border:1px solid var(--card-edge);color:var(--text);
+    padding:12px 14px;font-family:'Manrope',sans-serif;font-weight:700;font-size:15px;width:100%;border-radius:14px;}
+  input:focus,select:focus{outline:none;border-color:var(--accent);}
+  input::placeholder{color:var(--dimmer);font-weight:500;}
+  label{font-size:11px;color:var(--dim);letter-spacing:.6px;text-transform:uppercase;font-weight:700;display:block;margin-bottom:6px;}
 
-      .panel {
-        background: var(--card);
-        border: 1px solid var(--card-edge);
-        border-radius: var(--radius);
-        padding: 20px;
-        margin-bottom: 16px;
-      }
-      .panel h2 {
-        font-size: 19px;
-        font-weight: 800;
-        letter-spacing: -0.3px;
-        margin-bottom: 14px;
-      }
-      .panel h2 span {
-        color: var(--dim);
-        font-size: 13px;
-        font-weight: 600;
-      }
-      .row {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-      .row > * {
-        flex: 1;
-        min-width: 130px;
-      }
+  .panel{background:var(--card);border:1px solid var(--card-edge);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+  .panel h2{font-size:19px;font-weight:800;letter-spacing:-.3px;margin-bottom:14px;}
+  .panel h2 span{color:var(--dim);font-size:13px;font-weight:600;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;}
+  .row > *{flex:1;min-width:130px;}
 
-      .pill {
-        font-size: 12px;
-        font-weight: 700;
-        background: var(--card);
-        padding: 9px 14px;
-        border-radius: var(--pill);
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--danger);
-      }
-      .dot.on {
-        background: var(--good);
-        box-shadow: 0 0 10px rgba(99, 214, 138, 0.6);
-      }
+  .pill{font-size:12px;font-weight:700;background:var(--card);padding:9px 14px;border-radius:var(--pill);
+    display:inline-flex;align-items:center;gap:8px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--danger);}
+  .dot.on{background:var(--good);box-shadow:0 0 10px rgba(99,214,138,.6);}
 
-      /* token card */
-      .tcard {
-        background: var(--card);
-        border: 1px solid var(--card-edge);
-        border-radius: var(--radius);
-        margin-bottom: 12px;
-        overflow: hidden;
-        transition: border-color 0.2s;
-      }
-      .tcard.open {
-        border-color: #33333c;
-      }
-      .tcard.graduated {
-        border-color: rgba(99, 214, 138, 0.4);
-      }
-      .thead {
-        padding: 16px 18px;
-        cursor: pointer;
-      }
-      .thead:hover {
-        background: var(--card-2);
-      }
-      .ttop {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 12px;
-      }
-      .tname {
-        font-weight: 800;
-        font-size: 18px;
-        letter-spacing: -0.3px;
-      }
-      .tname em {
-        font-style: normal;
-        color: var(--dim);
-        font-weight: 700;
-        font-size: 14px;
-        margin-left: 6px;
-      }
-      .addr-link {
-        color: var(--accent);
-        text-decoration: none;
-        font-size: 11px;
-        font-weight: 700;
-      }
-      .addr-link:hover {
-        text-decoration: underline;
-      }
+  /* token card */
+  .tcard{background:var(--card);border:1px solid var(--card-edge);border-radius:var(--radius);
+    margin-bottom:12px;overflow:hidden;transition:border-color .2s;}
+  .tcard.open{border-color:#33333c;}
+  .tcard.graduated{border-color:rgba(99,214,138,.4);}
+  .thead{padding:16px 18px;cursor:pointer;}
+  .thead:hover{background:var(--card-2);}
+  .ttop{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;}
+  .tname{font-weight:800;font-size:18px;letter-spacing:-.3px;}
+  .tname em{font-style:normal;color:var(--dim);font-weight:700;font-size:14px;margin-left:6px;}
+  .addr-link{color:var(--accent);text-decoration:none;font-size:11px;font-weight:700;}
+  .addr-link:hover{text-decoration:underline;}
 
-      .stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1px;
-        background: var(--card-edge);
-        border: 1px solid var(--card-edge);
-        border-radius: 12px;
-        overflow: hidden;
-        margin-bottom: 14px;
-      }
-      .stat {
-        background: var(--card);
-        padding: 10px 12px;
-      }
-      .stat .k {
-        font-size: 9.5px;
-        color: var(--dim);
-        letter-spacing: 0.7px;
-        text-transform: uppercase;
-        font-weight: 700;
-        margin-bottom: 3px;
-      }
-      .stat .v {
-        font-size: 14px;
-        font-weight: 800;
-        letter-spacing: -0.2px;
-      }
-      .stat .v.mc {
-        color: var(--accent);
-      }
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--card-edge);
+    border:1px solid var(--card-edge);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+  .stat{background:var(--card);padding:10px 12px;}
+  .stat .k{font-size:9.5px;color:var(--dim);letter-spacing:.7px;text-transform:uppercase;font-weight:700;margin-bottom:3px;}
+  .stat .v{font-size:14px;font-weight:800;letter-spacing:-.2px;}
+  .stat .v.mc{color:var(--accent);}
 
-      .prog-head {
-        display: flex;
-        justify-content: space-between;
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--dim);
-        margin-bottom: 6px;
-      }
-      .prog-head .pc {
-        color: var(--text);
-      }
-      .track {
-        height: 7px;
-        background: #1d1d21;
-        border-radius: 99px;
-        overflow: hidden;
-      }
-      .fill {
-        height: 100%;
-        border-radius: 99px;
-        background: linear-gradient(90deg, var(--purple), var(--accent));
-        transition: width 0.4s;
-      }
-      .fill.done {
-        background: var(--good);
-      }
+  .prog-head{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--dim);margin-bottom:6px;}
+  .prog-head .pc{color:var(--text);}
+  .track{height:7px;background:#1d1d21;border-radius:99px;overflow:hidden;}
+  .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--purple),var(--accent));transition:width .4s;}
+  .fill.done{background:var(--good);}
 
-      .tbody {
-        border-top: 1px solid var(--card-edge);
-        padding: 18px;
-        display: none;
-      }
-      .tcard.open .tbody {
-        display: block;
-      }
+  .tbody{border-top:1px solid var(--card-edge);padding:18px;display:none;}
+  .tcard.open .tbody{display:block;}
 
-      .tabs {
-        display: flex;
-        gap: 6px;
-        background: var(--bg);
-        padding: 4px;
-        border-radius: var(--pill);
-        margin-bottom: 14px;
-      }
-      .tab {
-        flex: 1;
-        text-align: center;
-        padding: 9px;
-        border-radius: var(--pill);
-        font-size: 13px;
-        font-weight: 800;
-        cursor: pointer;
-        color: var(--dim);
-        transition: all 0.15s;
-      }
-      .tab:hover {
-        color: var(--text);
-      }
-      .tab.on {
-        background: var(--card-2);
-        color: var(--text);
-      }
-      .tab.on.buy {
-        color: var(--good);
-      }
-      .tab.on.sell {
-        color: var(--danger);
-      }
+  .tabs{display:flex;gap:6px;background:var(--bg);padding:4px;border-radius:var(--pill);margin-bottom:14px;}
+  .tab{flex:1;text-align:center;padding:9px;border-radius:var(--pill);font-size:13px;font-weight:800;
+    cursor:pointer;color:var(--dim);transition:all .15s;}
+  .tab:hover{color:var(--text);}
+  .tab.on{background:var(--card-2);color:var(--text);}
+  .tab.on.buy{color:var(--good);}
+  .tab.on.sell{color:var(--danger);}
 
-      .chips {
-        display: flex;
-        gap: 6px;
-        margin: 8px 0 10px;
-        flex-wrap: wrap;
-      }
-      .chip {
-        background: var(--card-2);
-        border: none;
-        color: var(--dim);
-        font-family: "Manrope", sans-serif;
-        font-size: 11.5px;
-        font-weight: 700;
-        padding: 6px 12px;
-        border-radius: var(--pill);
-        cursor: pointer;
-      }
-      .chip:hover {
-        background: #2a2a31;
-        color: var(--text);
-      }
+  .chips{display:flex;gap:6px;margin:8px 0 10px;flex-wrap:wrap;}
+  .chip{background:var(--card-2);border:none;color:var(--dim);font-family:'Manrope',sans-serif;
+    font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:var(--pill);cursor:pointer;}
+  .chip:hover{background:#2a2a31;color:var(--text);}
 
-      .est {
-        font-size: 12.5px;
-        color: var(--dim);
-        font-weight: 600;
-        margin-bottom: 12px;
-        min-height: 17px;
-      }
-      .est b {
-        color: var(--text);
-        font-weight: 800;
-      }
-      .est.warn {
-        color: var(--accent);
-      }
+  .est{font-size:12.5px;color:var(--dim);font-weight:600;margin-bottom:12px;min-height:17px;}
+  .est b{color:var(--text);font-weight:800;}
+  .est.warn{color:var(--accent);}
 
-      .trades {
-        margin-top: 18px;
-      }
-      .trades h4 {
-        font-size: 10px;
-        letter-spacing: 0.9px;
-        text-transform: uppercase;
-        color: var(--dim);
-        font-weight: 800;
-        margin-bottom: 8px;
-      }
-      .trade {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        padding: 7px 0;
-        border-bottom: 1px solid #1c1c21;
-        font-size: 12px;
-        font-weight: 600;
-      }
-      .trade:last-child {
-        border-bottom: none;
-      }
-      .tside {
-        font-size: 9.5px;
-        font-weight: 800;
-        letter-spacing: 0.5px;
-        padding: 3px 7px;
-        border-radius: 5px;
-        flex-shrink: 0;
-      }
-      .tside.b {
-        background: rgba(99, 214, 138, 0.14);
-        color: var(--good);
-      }
-      .tside.s {
-        background: rgba(255, 90, 90, 0.12);
-        color: var(--danger);
-      }
-      .tdesc {
-        flex: 1;
-        color: var(--text);
-      }
-      .tdesc span {
-        color: var(--dim);
-      }
-      .twho {
-        color: var(--dimmer);
-        font-size: 11px;
-        flex-shrink: 0;
-      }
+  .trades{margin-top:18px;}
+  .trades h4{font-size:10px;letter-spacing:.9px;text-transform:uppercase;color:var(--dim);font-weight:800;margin-bottom:8px;}
+  .trade{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid #1c1c21;font-size:12px;font-weight:600;}
+  .trade:last-child{border-bottom:none;}
+  .tside{font-size:9.5px;font-weight:800;letter-spacing:.5px;padding:3px 7px;border-radius:5px;flex-shrink:0;}
+  .tside.b{background:rgba(99,214,138,.14);color:var(--good);}
+  .tside.s{background:rgba(255,90,90,.12);color:var(--danger);}
+  .tdesc{flex:1;color:var(--text);}
+  .tdesc span{color:var(--dim);}
+  .twho{color:var(--dimmer);font-size:11px;flex-shrink:0;}
 
-      .note {
-        font-size: 12px;
-        color: var(--dim);
-        line-height: 1.7;
-        font-weight: 500;
-      }
-      .note a {
-        color: var(--accent);
-        text-decoration: none;
-        font-weight: 700;
-      }
-      .note code {
-        background: var(--card);
-        padding: 1px 6px;
-        border-radius: 6px;
-        font-size: 11px;
-      }
-      .status-msg {
-        font-size: 13px;
-        font-weight: 600;
-        padding: 12px 16px;
-        margin-bottom: 14px;
-        border-radius: 14px;
-        display: none;
-        word-break: break-word;
-      }
-      .status-msg.err {
-        color: var(--danger);
-        background: rgba(255, 90, 90, 0.1);
-        display: block;
-      }
-      .status-msg.ok {
-        color: var(--good);
-        background: rgba(99, 214, 138, 0.1);
-        display: block;
-      }
-      .status-msg.info {
-        color: var(--text);
-        background: var(--card);
-        display: block;
-      }
-      .empty {
-        font-size: 13px;
-        color: var(--dim);
-        font-weight: 600;
-        padding: 22px;
-        text-align: center;
-        background: var(--card);
-        border-radius: var(--radius);
-      }
-      .grad-badge {
-        font-size: 12.5px;
-        font-weight: 800;
-        color: var(--good);
-        margin-top: 10px;
-        line-height: 1.6;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="wrap">
-      <header>
-        <div class="brand"><h1>🏹 Surewould</h1></div>
-        <div
-          style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap"
-        >
-          <span class="pill"
-            ><span class="dot" id="netDot"></span
-            ><span id="netLabel">not connected</span></span
-          >
-          <button class="btn primary" id="connectBtn" onclick="connectWallet()">
-            Connect wallet
-          </button>
-        </div>
-      </header>
-      <p class="tag">
-        would you launch a token on Robinhood Chain? sure would. no presale,
-        trades instantly, graduates to Uniswap.
-      </p>
+  .note{font-size:12px;color:var(--dim);line-height:1.7;font-weight:500;}
+  .note a{color:var(--accent);text-decoration:none;font-weight:700;}
+  .note code{background:var(--card);padding:1px 6px;border-radius:6px;font-size:11px;}
+  .status-msg{font-size:13px;font-weight:600;padding:12px 16px;margin-bottom:14px;border-radius:14px;display:none;word-break:break-word;}
+  .status-msg.err{color:var(--danger);background:rgba(255,90,90,.1);display:block;}
+  .status-msg.ok{color:var(--good);background:rgba(99,214,138,.1);display:block;}
+  .status-msg.info{color:var(--text);background:var(--card);display:block;}
+  .empty{font-size:13px;color:var(--dim);font-weight:600;padding:22px;text-align:center;background:var(--card);border-radius:var(--radius);}
+  .grad-badge{font-size:12.5px;font-weight:800;color:var(--good);margin-top:10px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="wrap">
 
-      <div class="status-msg" id="statusMsg"></div>
-
-      <div class="panel" id="setupPanel">
-        <h2>Setup</h2>
-        <div class="row" style="margin-bottom: 10px">
-          <div>
-            <label>Network</label>
-            <select id="networkSelect" onchange="onNetworkChange()">
-              <option value="testnet">Testnet (46630)</option>
-              <option value="mainnet">Mainnet (4663)</option>
-            </select>
-          </div>
-          <div style="flex: 2">
-            <label>Factory contract address</label>
-            <input id="factoryAddr" placeholder="0x…" />
-          </div>
-        </div>
-        <button class="btn" onclick="loadTokens()">Load launchpad</button>
-      </div>
-
-      <div class="panel">
-        <h2>Launch a token</h2>
-        <div class="row" style="margin-bottom: 10px">
-          <div>
-            <label>Token name</label
-            ><input id="launchName" placeholder="Cash Cow" />
-          </div>
-          <div>
-            <label>Symbol</label><input id="launchSymbol" placeholder="MOO" />
-          </div>
-        </div>
-        <button class="btn primary" id="launchBtn" onclick="launchToken()">
-          Sure would.
-        </button>
-      </div>
-
-      <div class="panel">
-        <h2>Live tokens <span>on the curve</span></h2>
-        <div id="tokenList">
-          <div class="empty">connect your wallet to see live tokens</div>
-        </div>
-      </div>
-
-      <p class="note">
-        1% fee per trade to the launchpad operator. When a curve reaches its
-        graduation threshold (<span id="thrNote">—</span>), liquidity moves to
-        Uniswap V2 and the LP tokens are burned — the initial pool can never be
-        pulled. Experimental, unaudited software; risk only what you can lose.
-      </p>
+  <header>
+    <div class="brand"><h1>🏹 Surewould</h1></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <span class="pill"><span class="dot" id="netDot"></span><span id="netLabel">not connected</span></span>
+      <button class="btn primary" id="connectBtn" onclick="connectWallet()">Connect wallet</button>
     </div>
+  </header>
+  <p class="tag">would you launch a token on Robinhood Chain? sure would. no presale, trades instantly, graduates to Uniswap.</p>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-    <script>
-      const NETWORKS = {
-        testnet: {
-          chainIdHex: "0xB626",
-          chainId: 46630,
-          name: "Robinhood Chain Testnet",
-          rpc: "https://rpc.testnet.chain.robinhood.com",
-          explorer: "https://explorer.testnet.chain.robinhood.com",
-        },
-        mainnet: {
-          chainIdHex: "0x1237",
-          chainId: 4663,
-          name: "Robinhood Chain",
-          rpc: "https://rpc.mainnet.chain.robinhood.com",
-          explorer: "https://robinhoodchain.blockscout.com",
-        },
-      };
+  <div class="status-msg" id="statusMsg"></div>
 
-      const FACTORY_ABI = [
-        "function launch(string name, string symbol) returns (address, address)",
-        "function tokenCount() view returns (uint256)",
-        "function allTokens(uint256) view returns (address)",
-        "function curveOf(address) view returns (address)",
-        "function MIGRATION_THRESHOLD() view returns (uint256)",
-        "function TOTAL_SUPPLY() view returns (uint256)",
-      ];
-      const CURVE_ABI = [
-        "function getPrice() view returns (uint256)",
-        "function virtualEthReserves() view returns (uint256)",
-        "function virtualTokenReserves() view returns (uint256)",
-        "function realEthReserves() view returns (uint256)",
-        "function realTokenReserves() view returns (uint256)",
-        "function migrated() view returns (bool)",
-        "function buy(uint256 minTokensOut) payable",
-        "function sell(uint256 tokenAmount, uint256 minEthOut)",
-        "event Trade(address indexed trader, bool isBuy, uint256 ethAmount, uint256 tokenAmount, uint256 newPriceWei)",
-        "event Migrated(uint256 ethAmount, uint256 tokenAmount)",
-      ];
-      const TOKEN_ABI = [
-        "function name() view returns (string)",
-        "function symbol() view returns (string)",
-        "function balanceOf(address) view returns (uint256)",
-        "function approve(address, uint256) returns (bool)",
-        "function allowance(address, address) view returns (uint256)",
-      ];
+  <div class="panel" id="setupPanel">
+    <h2>Setup</h2>
+    <div class="row" style="margin-bottom:10px;">
+      <div>
+        <label>Network</label>
+        <select id="networkSelect" onchange="onNetworkChange()">
+          <option value="testnet">Testnet (46630)</option>
+          <option value="mainnet">Mainnet (4663)</option>
+        </select>
+      </div>
+      <div style="flex:2;">
+        <label>Factory contract address</label>
+        <input id="factoryAddr" placeholder="0x…">
+      </div>
+    </div>
+    <button class="btn" onclick="loadTokens()">Load launchpad</button>
+  </div>
 
-      let provider, signer, userAddr;
-      let TOTAL_SUPPLY = 1000000000n * 10n ** 18n;
-      const ui = {}; // curveAddr -> { mode, open }
-      const data = {}; // curveAddr -> cached token data
+  <div class="panel">
+    <h2>Launch a token</h2>
+    <div class="row" style="margin-bottom:10px;">
+      <div><label>Token name</label><input id="launchName" placeholder="Cash Cow"></div>
+      <div><label>Symbol</label><input id="launchSymbol" placeholder="MOO"></div>
+      <div><label>Your first buy <span style="text-transform:none">(optional, anti-snipe)</span></label>
+        <input id="launchBuy" placeholder="ETH, e.g. 0.001" inputmode="decimal"></div>
+    </div>
+    <button class="btn primary" id="launchBtn" onclick="launchToken()">Sure would.</button>
+    <p class="note" style="margin-top:10px;">Send ETH with your launch and your buy executes in the same transaction the token is created — no block exists for snipers to front-run you.</p>
+  </div>
 
-      // ── HOSTED-SITE CONFIG ──────────────────────────────────────────────
-      const DEPLOYED_FACTORY = "0xA88D1E2b5063e249510dEe0D5A9FD07537173B61";
-      const DEPLOYED_NETWORK = "testnet";
+  <div class="panel">
+    <h2>Live tokens <span>on the curve</span></h2>
+    <div id="tokenList"><div class="empty">connect your wallet to see live tokens</div></div>
+  </div>
 
-      (function applyConfig() {
-        const p = new URLSearchParams(location.search);
-        const f = p.get("factory") || DEPLOYED_FACTORY;
-        const n = p.get("net") || DEPLOYED_NETWORK;
-        if (n === "mainnet" || n === "testnet")
-          document.getElementById("networkSelect").value = n;
-        if (f) {
-          document.getElementById("factoryAddr").value = f;
-          const s = document.getElementById("setupPanel");
-          if (s) s.style.display = "none";
-        }
-      })();
+  <p class="note">1% fee per trade to the launchpad operator. When a curve reaches its graduation threshold (<span id="thrNote">—</span>), liquidity moves to Uniswap V2 and the LP tokens are burned — the initial pool can never be pulled. Experimental, unaudited software; risk only what you can lose.</p>
+</div>
 
-      function net() {
-        return NETWORKS[document.getElementById("networkSelect").value];
-      }
-      function msg(t, k) {
-        const el = document.getElementById("statusMsg");
-        el.textContent = t;
-        el.className = "status-msg " + (k || "info");
-        if (k === "ok")
-          setTimeout(() => {
-            el.className = "status-msg";
-          }, 7000);
-      }
-      function short(a) {
-        return a.slice(0, 6) + "…" + a.slice(-4);
-      }
-      function esc(s) {
-        return String(s).replace(
-          /[&<>"']/g,
-          (c) =>
-            ({
-              "&": "&amp;",
-              "<": "&lt;",
-              ">": "&gt;",
-              '"': "&quot;",
-              "'": "&#39;",
-            })[c],
-        );
-      }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+<script>
+const NETWORKS = {
+  testnet:{chainIdHex:'0xB626',chainId:46630,name:'Robinhood Chain Testnet',
+    rpc:'https://rpc.testnet.chain.robinhood.com',explorer:'https://explorer.testnet.chain.robinhood.com'},
+  mainnet:{chainIdHex:'0x1237',chainId:4663,name:'Robinhood Chain',
+    rpc:'https://rpc.mainnet.chain.robinhood.com',explorer:'https://robinhoodchain.blockscout.com'}
+};
 
-      // ── curve math (mirrors the contract exactly) ───────────────────────
-      const FEE_BPS = 100n;
-      function calcTokensOut(vEth, vTok, ethSent) {
-        const fee = (ethSent * FEE_BPS) / 10000n;
-        const ethIn = ethSent - fee;
-        const k = vEth * vTok;
-        return vTok - k / (vEth + ethIn);
-      }
-      function calcEthOut(vEth, vTok, tokenAmt, realEth) {
-        const k = vEth * vTok;
-        let out = vEth - k / (vTok + tokenAmt);
-        if (out > realEth) out = realEth;
-        return out - (out * FEE_BPS) / 10000n;
-      }
-      // largest gross buy that won't revert on "insufficient token liquidity"
-      function maxBuyWei(vEth, vTok, realTok) {
-        const denom = vTok - realTok;
-        if (denom <= 0n) return 0n;
-        const maxNet = (vEth * vTok) / denom - vEth;
-        if (maxNet <= 0n) return 0n;
-        return (maxNet * 9900n) / 10000n; // shade under the cap for rounding safety
-      }
-      function fmtEth(wei, dp) {
-        const n = Number(ethers.formatEther(wei));
-        if (n === 0) return "0";
-        if (n < 0.000001) return n.toExponential(2);
-        return n.toFixed(dp === undefined ? 4 : dp);
-      }
-      function fmtTok(wei) {
-        const n = Number(ethers.formatEther(wei));
-        if (n >= 1e9) return (n / 1e9).toFixed(2) + "B";
-        if (n >= 1e6) return (n / 1e6).toFixed(1) + "M";
-        if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
-        return n.toFixed(0);
-      }
-      function ago(ts) {
-        const d = Math.floor(Date.now() / 1000 - ts);
-        if (d < 60) return d + "s ago";
-        if (d < 3600) return Math.floor(d / 60) + "m ago";
-        if (d < 86400) return Math.floor(d / 3600) + "h ago";
-        return Math.floor(d / 86400) + "d ago";
-      }
+const FACTORY_ABI = [
+  'function launch(string name, string symbol) returns (address, address)',
+  'function tokenCount() view returns (uint256)',
+  'function allTokens(uint256) view returns (address)',
+  'function curveOf(address) view returns (address)',
+  'function MIGRATION_THRESHOLD() view returns (uint256)',
+  'function TOTAL_SUPPLY() view returns (uint256)'
+];
+const CURVE_ABI = [
+  'function getPrice() view returns (uint256)',
+  'function virtualEthReserves() view returns (uint256)',
+  'function virtualTokenReserves() view returns (uint256)',
+  'function realEthReserves() view returns (uint256)',
+  'function realTokenReserves() view returns (uint256)',
+  'function migrated() view returns (bool)',
+  'function buy(uint256 minTokensOut) payable',
+  'function sell(uint256 tokenAmount, uint256 minEthOut)',
+  'event Trade(address indexed trader, bool isBuy, uint256 ethAmount, uint256 tokenAmount, uint256 newPriceWei)',
+  'event Migrated(uint256 ethAmount, uint256 tokenAmount)'
+];
+const TOKEN_ABI = [
+  'function name() view returns (string)','function symbol() view returns (string)',
+  'function balanceOf(address) view returns (uint256)',
+  'function approve(address, uint256) returns (bool)',
+  'function allowance(address, address) view returns (uint256)'
+];
 
-      async function connectWallet() {
-        if (!window.ethereum) {
-          msg(
-            "No wallet found. Install MetaMask, or open this in a wallet browser.",
-            "err",
-          );
-          return;
-        }
-        try {
-          provider = new ethers.BrowserProvider(window.ethereum);
-          await switchChain();
-          const acc = await provider.send("eth_requestAccounts", []);
-          userAddr = acc[0];
-          signer = await provider.getSigner();
-          document.getElementById("netDot").classList.add("on");
-          document.getElementById("netLabel").textContent =
-            short(userAddr) + " · " + net().name;
-          document.getElementById("connectBtn").textContent = "Connected";
-          msg("Wallet connected.", "ok");
-          if (document.getElementById("factoryAddr").value.trim()) loadTokens();
-        } catch (e) {
-          msg("Connect failed: " + (e.shortMessage || e.message), "err");
-        }
-      }
+let provider, signer, userAddr;
+let TOTAL_SUPPLY = 1000000000n * (10n ** 18n);
+const ui = {};   // curveAddr -> { mode, open }
+const data = {}; // curveAddr -> cached token data
 
-      async function switchChain() {
-        const n = net();
-        try {
-          await window.ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: n.chainIdHex }],
-          });
-        } catch (err) {
-          if (err.code === 4902) {
-            await window.ethereum.request({
-              method: "wallet_addEthereumChain",
-              params: [
-                {
-                  chainId: n.chainIdHex,
-                  chainName: n.name,
-                  nativeCurrency: {
-                    name: "Ether",
-                    symbol: "ETH",
-                    decimals: 18,
-                  },
-                  rpcUrls: [n.rpc],
-                  blockExplorerUrls: [n.explorer],
-                },
-              ],
-            });
-          } else throw err;
-        }
-      }
+// ── HOSTED-SITE CONFIG ──────────────────────────────────────────────
+const DEPLOYED_FACTORY = '0x60527b690B16895Ed6BE0fC5CC0Ce1df78dB8C58';
+const DEPLOYED_NETWORK = 'testnet';
 
-      function onNetworkChange() {
-        if (userAddr)
-          switchChain()
-            .then(() => {
-              document.getElementById("netLabel").textContent =
-                short(userAddr) + " · " + net().name;
-              loadTokens();
-            })
-            .catch((e) =>
-              msg(
-                "Chain switch failed: " + (e.shortMessage || e.message),
-                "err",
-              ),
-            );
-      }
+(function applyConfig(){
+  const p = new URLSearchParams(location.search);
+  const f = p.get('factory') || DEPLOYED_FACTORY;
+  const n = p.get('net') || DEPLOYED_NETWORK;
+  if(n==='mainnet'||n==='testnet') document.getElementById('networkSelect').value = n;
+  if(f){
+    document.getElementById('factoryAddr').value = f;
+    const s = document.getElementById('setupPanel');
+    if(s) s.style.display='none';
+  }
+})();
 
-      function factory() {
-        const a = document.getElementById("factoryAddr").value.trim();
-        if (!ethers.isAddress(a))
-          throw new Error("No factory address configured");
-        return new ethers.Contract(a, FACTORY_ABI, signer || provider);
-      }
+function net(){ return NETWORKS[document.getElementById('networkSelect').value]; }
+function msg(t,k){
+  const el=document.getElementById('statusMsg');
+  el.textContent=t; el.className='status-msg '+(k||'info');
+  if(k==='ok') setTimeout(()=>{el.className='status-msg';},7000);
+}
+function short(a){ return a.slice(0,6)+'…'+a.slice(-4); }
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-      async function launchToken() {
-        if (!signer) {
-          msg("Connect your wallet first.", "err");
-          return;
-        }
-        const name = document.getElementById("launchName").value.trim();
-        const sym = document.getElementById("launchSymbol").value.trim();
-        if (!name || !sym) {
-          msg("Name and symbol required.", "err");
-          return;
-        }
-        try {
-          msg("Launching " + sym + "… confirm in wallet", "info");
-          const tx = await factory().launch(name, sym);
-          msg("Launch sent: " + short(tx.hash) + " — waiting…", "info");
-          await tx.wait();
-          msg(sym + " is live!", "ok");
-          document.getElementById("launchName").value = "";
-          document.getElementById("launchSymbol").value = "";
-          loadTokens();
-        } catch (e) {
-          msg("Launch failed: " + (e.shortMessage || e.message), "err");
-        }
-      }
+// ── curve math (mirrors the contract exactly) ───────────────────────
+const FEE_BPS = 100n;
+function calcTokensOut(vEth,vTok,ethSent){
+  const fee = ethSent*FEE_BPS/10000n;
+  const ethIn = ethSent-fee;
+  const k = vEth*vTok;
+  return vTok - (k/(vEth+ethIn));
+}
+function calcEthOut(vEth,vTok,tokenAmt,realEth){
+  const k = vEth*vTok;
+  let out = vEth - (k/(vTok+tokenAmt));
+  if(out>realEth) out=realEth;
+  return out - (out*FEE_BPS/10000n);
+}
+// largest gross buy that won't revert on "insufficient token liquidity"
+function maxBuyWei(vEth,vTok,realTok){
+  const denom = vTok-realTok;
+  if(denom<=0n) return 0n;
+  const maxNet = (vEth*vTok)/denom - vEth;
+  if(maxNet<=0n) return 0n;
+  return maxNet*9900n/10000n; // shade under the cap for rounding safety
+}
+function fmtEth(wei,dp){
+  const n = Number(ethers.formatEther(wei));
+  if(n===0) return '0';
+  if(n<0.000001) return n.toExponential(2);
+  return n.toFixed(dp===undefined?4:dp);
+}
+function fmtTok(wei){
+  const n = Number(ethers.formatEther(wei));
+  if(n>=1e9) return (n/1e9).toFixed(2)+'B';
+  if(n>=1e6) return (n/1e6).toFixed(1)+'M';
+  if(n>=1e3) return (n/1e3).toFixed(1)+'K';
+  return n.toFixed(0);
+}
+function ago(ts){
+  const d = Math.floor(Date.now()/1000 - ts);
+  if(d<60) return d+'s ago';
+  if(d<3600) return Math.floor(d/60)+'m ago';
+  if(d<86400) return Math.floor(d/3600)+'h ago';
+  return Math.floor(d/86400)+'d ago';
+}
 
-      async function loadTokens() {
-        const el = document.getElementById("tokenList");
-        let f;
-        try {
-          f = factory();
-        } catch (e) {
-          msg(e.message, "err");
-          return;
-        }
-        if (!provider) {
-          el.innerHTML =
-            '<div class="empty">connect your wallet to see live tokens</div>';
-          return;
-        }
-        try {
-          el.innerHTML = '<div class="empty">reading the chain…</div>';
-          const count = Number(await f.tokenCount());
-          const threshold = await f.MIGRATION_THRESHOLD();
-          try {
-            TOTAL_SUPPLY = await f.TOTAL_SUPPLY();
-          } catch (_) {}
-          const tn = document.getElementById("thrNote");
-          if (tn) tn.textContent = fmtEth(threshold, 4) + " ETH";
+async function connectWallet(){
+  if(!window.ethereum){ msg('No wallet found. Install MetaMask, or open this in a wallet browser.','err'); return; }
+  try{
+    provider = new ethers.BrowserProvider(window.ethereum);
+    await switchChain();
+    const acc = await provider.send('eth_requestAccounts',[]);
+    userAddr = acc[0];
+    signer = await provider.getSigner();
+    document.getElementById('netDot').classList.add('on');
+    document.getElementById('netLabel').textContent = short(userAddr)+' · '+net().name;
+    document.getElementById('connectBtn').textContent='Connected';
+    msg('Wallet connected.','ok');
+    if(document.getElementById('factoryAddr').value.trim()) loadTokens();
+  }catch(e){ msg('Connect failed: '+(e.shortMessage||e.message),'err'); }
+}
 
-          if (count === 0) {
-            el.innerHTML =
-              '<div class="empty">no tokens launched yet — be the first</div>';
-            return;
-          }
+async function switchChain(){
+  const n=net();
+  try{
+    await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:n.chainIdHex}]});
+  }catch(err){
+    if(err.code===4902){
+      await window.ethereum.request({method:'wallet_addEthereumChain',params:[{
+        chainId:n.chainIdHex, chainName:n.name,
+        nativeCurrency:{name:'Ether',symbol:'ETH',decimals:18},
+        rpcUrls:[n.rpc], blockExplorerUrls:[n.explorer]
+      }]});
+    } else throw err;
+  }
+}
 
-          const cards = [];
-          const max = Math.min(count, 30);
-          for (let i = count - 1; i >= count - max; i--) {
-            const tAddr = await f.allTokens(i);
-            const cAddr = await f.curveOf(tAddr);
-            const token = new ethers.Contract(tAddr, TOKEN_ABI, provider);
-            const curve = new ethers.Contract(cAddr, CURVE_ABI, provider);
-            const [name, sym, price, vEth, vTok, realEth, realTok, migrated] =
-              await Promise.all([
-                token.name(),
-                token.symbol(),
-                curve.getPrice(),
-                curve.virtualEthReserves(),
-                curve.virtualTokenReserves(),
-                curve.realEthReserves(),
-                curve.realTokenReserves(),
-                curve.migrated(),
-              ]);
-            const bal = userAddr ? await token.balanceOf(userAddr) : 0n;
-            // realEthReserves is zeroed at migration, so the final raise has to come from the event
-            let finalRaise = null;
-            if (migrated) finalRaise = await fetchFinalRaise(curve);
-            data[cAddr] = {
-              tAddr,
-              cAddr,
-              name,
-              sym,
-              price,
-              vEth,
-              vTok,
-              realEth,
-              realTok,
-              migrated,
-              bal,
-              threshold,
-              finalRaise,
-            };
-            if (!ui[cAddr]) ui[cAddr] = { mode: "buy", open: false };
-            cards.push(card(data[cAddr]));
-          }
-          el.innerHTML = cards.join("");
-          // load trade history for any open card
-          Object.keys(ui).forEach((c) => {
-            if (ui[c].open) loadTrades(c);
-          });
-        } catch (e) {
-          msg("Load failed: " + (e.shortMessage || e.message), "err");
-          el.innerHTML = '<div class="empty">could not load tokens</div>';
-        }
-      }
+function onNetworkChange(){
+  if(userAddr) switchChain().then(()=>{
+    document.getElementById('netLabel').textContent = short(userAddr)+' · '+net().name;
+    loadTokens();
+  }).catch(e=>msg('Chain switch failed: '+(e.shortMessage||e.message),'err'));
+}
 
-      function card(t) {
-        const st = ui[t.cAddr];
-        const mcap = t.price * (TOTAL_SUPPLY / 10n ** 18n);
-        const pct = t.migrated
-          ? 100
-          : Math.min(100, Number((t.realEth * 10000n) / t.threshold) / 100);
-        const exp = net().explorer + "/address/" + t.tAddr;
-        return `
-  <div class="tcard ${st.open ? "open" : ""} ${t.migrated ? "graduated" : ""}" id="c-${t.cAddr}">
+function factory(){
+  const a=document.getElementById('factoryAddr').value.trim();
+  if(!ethers.isAddress(a)) throw new Error('No factory address configured');
+  return new ethers.Contract(a, FACTORY_ABI, signer||provider);
+}
+
+async function launchToken(){
+  if(!signer){ msg('Connect your wallet first.','err'); return; }
+  const name=document.getElementById('launchName').value.trim();
+  const sym=document.getElementById('launchSymbol').value.trim();
+  if(!name||!sym){ msg('Name and symbol required.','err'); return; }
+  try{
+    const firstBuy = document.getElementById('launchBuy').value.trim();
+    const opts = {};
+    if(firstBuy && !isNaN(firstBuy) && Number(firstBuy)>0) opts.value = ethers.parseEther(firstBuy);
+    msg('Launching '+sym+'… confirm in wallet','info');
+    const tx=await factory().launch(name,sym,opts);
+    msg('Launch sent: '+short(tx.hash)+' — waiting…','info');
+    await tx.wait();
+    msg(sym+' is live!','ok');
+    document.getElementById('launchName').value='';
+    document.getElementById('launchSymbol').value='';
+    document.getElementById('launchBuy').value='';
+    loadTokens();
+  }catch(e){ msg('Launch failed: '+(e.shortMessage||e.message),'err'); }
+}
+
+async function loadTokens(){
+  const el=document.getElementById('tokenList');
+  let f;
+  try{ f=factory(); }catch(e){ msg(e.message,'err'); return; }
+  if(!provider){ el.innerHTML='<div class="empty">connect your wallet to see live tokens</div>'; return; }
+  try{
+    el.innerHTML='<div class="empty">reading the chain…</div>';
+    const count=Number(await f.tokenCount());
+    const threshold=await f.MIGRATION_THRESHOLD();
+    try{ TOTAL_SUPPLY = await f.TOTAL_SUPPLY(); }catch(_){}
+    const tn=document.getElementById('thrNote');
+    if(tn) tn.textContent = fmtEth(threshold,4)+' ETH';
+
+    if(count===0){ el.innerHTML='<div class="empty">no tokens launched yet — be the first</div>'; return; }
+
+    const cards=[];
+    const max=Math.min(count,30);
+    for(let i=count-1;i>=count-max;i--){
+      const tAddr=await f.allTokens(i);
+      const cAddr=await f.curveOf(tAddr);
+      const token=new ethers.Contract(tAddr,TOKEN_ABI,provider);
+      const curve=new ethers.Contract(cAddr,CURVE_ABI,provider);
+      const [name,sym,price,vEth,vTok,realEth,realTok,migrated]=await Promise.all([
+        token.name(),token.symbol(),curve.getPrice(),
+        curve.virtualEthReserves(),curve.virtualTokenReserves(),
+        curve.realEthReserves(),curve.realTokenReserves(),curve.migrated()
+      ]);
+      const bal = userAddr ? await token.balanceOf(userAddr) : 0n;
+      // realEthReserves is zeroed at migration, so the final raise has to come from the event
+      let finalRaise = null;
+      if(migrated) finalRaise = await fetchFinalRaise(curve);
+      data[cAddr]={tAddr,cAddr,name,sym,price,vEth,vTok,realEth,realTok,migrated,bal,threshold,finalRaise};
+      if(!ui[cAddr]) ui[cAddr]={mode:'buy',open:false};
+      cards.push(card(data[cAddr]));
+    }
+    el.innerHTML=cards.join('');
+    // load trade history for any open card
+    Object.keys(ui).forEach(c=>{ if(ui[c].open) loadTrades(c); });
+  }catch(e){
+    msg('Load failed: '+(e.shortMessage||e.message),'err');
+    el.innerHTML='<div class="empty">could not load tokens</div>';
+  }
+}
+
+function card(t){
+  const st=ui[t.cAddr];
+  const mcap = t.price * (TOTAL_SUPPLY/(10n**18n));
+  const pct = t.migrated?100:Math.min(100,Number(t.realEth*10000n/t.threshold)/100);
+  const exp = net().explorer+'/address/'+t.tAddr;
+  return `
+  <div class="tcard ${st.open?'open':''} ${t.migrated?'graduated':''}" id="c-${t.cAddr}">
     <div class="thead" onclick="toggle('${t.cAddr}')">
       <div class="ttop">
         <span class="tname">${esc(t.name)}<em>$${esc(t.sym)}</em></span>
         <a class="addr-link" href="${exp}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${short(t.tAddr)} ↗</a>
       </div>
       <div class="stats">
-        <div class="stat"><div class="k">Market cap</div><div class="v mc">${fmtEth(mcap, 4)} ETH</div></div>
+        <div class="stat"><div class="k">Market cap</div><div class="v mc">${fmtEth(mcap,4)} ETH</div></div>
         <div class="stat"><div class="k">Price</div><div class="v">${Number(ethers.formatEther(t.price)).toExponential(2)}</div></div>
         <div class="stat"><div class="k">Your bal</div><div class="v">${fmtTok(t.bal)}</div></div>
       </div>
-      ${
-        t.migrated
-          ? gradBadge(t)
-          : `<div class="prog-head"><span class="pc">${pct.toFixed(1)}% to graduation</span>
-             <span>${fmtEth(t.realEth, 4)} / ${fmtEth(t.threshold, 4)} ETH</span></div>
-           <div class="track"><div class="fill" style="width:${pct}%"></div></div>`
-      }
+      ${t.migrated
+        ? gradBadge(t)
+        : `<div class="prog-head"><span class="pc">${pct.toFixed(1)}% to graduation</span>
+             <span>${fmtEth(t.realEth,4)} / ${fmtEth(t.threshold,4)} ETH</span></div>
+           <div class="track"><div class="fill" style="width:${pct}%"></div></div>`}
     </div>
-    ${
-      t.migrated
-        ? ""
-        : `
+    ${t.migrated?'':`
     <div class="tbody">
       <div class="tabs">
-        <div class="tab buy ${st.mode === "buy" ? "on" : ""}" onclick="setMode('${t.cAddr}','buy')">Buy</div>
-        <div class="tab sell ${st.mode === "sell" ? "on" : ""}" onclick="setMode('${t.cAddr}','sell')">Sell</div>
+        <div class="tab buy ${st.mode==='buy'?'on':''}" onclick="setMode('${t.cAddr}','buy')">Buy</div>
+        <div class="tab sell ${st.mode==='sell'?'on':''}" onclick="setMode('${t.cAddr}','sell')">Sell</div>
       </div>
-      <input id="amt-${t.cAddr}" placeholder="${st.mode === "buy" ? "ETH amount" : t.sym + " amount"}"
+      <input id="amt-${t.cAddr}" placeholder="${st.mode==='buy'?'ETH amount':t.sym+' amount'}"
              inputmode="decimal" oninput="estimate('${t.cAddr}')">
-      <div class="chips">${chips(t, st)}</div>
-      <div class="est" id="est-${t.cAddr}">${st.mode === "buy" ? "max buy " + fmtEth(maxBuyWei(t.vEth, t.vTok, t.realTok), 5) + " ETH — the curve holds no more than that" : ""}</div>
-      <button class="btn go ${st.mode === "sell" ? "sellmode" : ""}" onclick="trade('${t.cAddr}')">
-        ${st.mode === "buy" ? "sure would" : "sell"}
+      <div class="chips">${chips(t,st)}</div>
+      <div class="est" id="est-${t.cAddr}">${st.mode==='buy'?'max buy '+fmtEth(maxBuyWei(t.vEth,t.vTok,t.realTok),5)+' ETH — the curve holds no more than that':''}</div>
+      <button class="btn go ${st.mode==='sell'?'sellmode':''}" onclick="trade('${t.cAddr}')">
+        ${st.mode==='buy'?'sure would':'sell'}
       </button>
       <div class="trades" id="tr-${t.cAddr}"></div>
-    </div>`
-    }
+    </div>`}
   </div>`;
-      }
+}
 
-      // The curve zeroes realEthReserves on migration, so read the actual raise off the event.
-      async function fetchFinalRaise(curve) {
-        try {
-          const latest = await provider.getBlockNumber();
-          const logs = await curve.queryFilter(
-            curve.filters.Migrated(),
-            Math.max(0, latest - 45000),
-            latest,
-          );
-          return logs.length ? logs[logs.length - 1].args.ethAmount : null;
-        } catch (_) {
-          return null;
-        }
-      }
+// The curve zeroes realEthReserves on migration, so read the actual raise off the event.
+async function fetchFinalRaise(curve){
+  try{
+    const latest = await provider.getBlockNumber();
+    const logs = await curve.queryFilter(curve.filters.Migrated(), Math.max(0,latest-45000), latest);
+    return logs.length ? logs[logs.length-1].args.ethAmount : null;
+  }catch(_){ return null; }
+}
 
-      function gradBadge(t) {
-        const raise =
-          t.finalRaise !== null && t.finalRaise !== undefined
-            ? `<b>${fmtEth(t.finalRaise, 5)} ETH</b> raised, moved to the pool`
-            : "liquidity moved to the pool";
-        // Testnet migrates into MockUniswapV2Router — the mechanism is real, the venue is a stub.
-        // Don't claim a tradeable Uniswap market exists where one doesn't.
-        const venue =
-          document.getElementById("networkSelect").value === "mainnet"
-            ? "now trading on Uniswap V2 · LP burned 🔥"
-            : 'LP burned 🔥 <span style="color:var(--dim)">(testnet: mock router, no live pool)</span>';
-        return `<div class="grad-badge">🎓 graduated — ${raise}<br>
+function gradBadge(t){
+  const raise = t.finalRaise!==null && t.finalRaise!==undefined
+    ? `<b>${fmtEth(t.finalRaise,5)} ETH</b> raised, moved to the pool` : 'liquidity moved to the pool';
+  // Testnet migrates into MockUniswapV2Router — the mechanism is real, the venue is a stub.
+  // Don't claim a tradeable Uniswap market exists where one doesn't.
+  const venue = document.getElementById('networkSelect').value === 'mainnet'
+    ? 'now trading on Uniswap V2 · LP burned 🔥'
+    : 'LP burned 🔥 <span style="color:var(--dim)">(testnet: mock router, no live pool)</span>';
+  return `<div class="grad-badge">🎓 graduated — ${raise}<br>
     <span style="font-weight:600">${venue}</span></div>`;
-      }
+}
 
-      function chips(t, st) {
-        if (st.mode === "buy") {
-          const mx = maxBuyWei(t.vEth, t.vTok, t.realTok);
-          const opts = [mx / 10n, mx / 4n, mx / 2n];
-          return (
-            opts
-              .map(
-                (v) =>
-                  `<button class="chip" onclick="setAmt('${t.cAddr}','${ethers.formatEther(v)}')">${fmtEth(v, 5)}</button>`,
-              )
-              .join("") +
-            `<button class="chip" onclick="setAmt('${t.cAddr}','${ethers.formatEther(mx)}')">max</button>`
-          );
-        }
-        return [
-          ["25%", 4n],
-          ["50%", 2n],
-          ["100%", 1n],
-        ]
-          .map(
-            ([l, d]) =>
-              `<button class="chip" onclick="setAmt('${t.cAddr}','${ethers.formatEther(t.bal / d)}')">${l}</button>`,
-          )
-          .join("");
-      }
+function chips(t,st){
+  if(st.mode==='buy'){
+    const mx=maxBuyWei(t.vEth,t.vTok,t.realTok);
+    const opts=[mx/10n,mx/4n,mx/2n];
+    return opts.map(v=>`<button class="chip" onclick="setAmt('${t.cAddr}','${ethers.formatEther(v)}')">${fmtEth(v,5)}</button>`).join('')
+      +`<button class="chip" onclick="setAmt('${t.cAddr}','${ethers.formatEther(mx)}')">max</button>`;
+  }
+  return [['25%',4n],['50%',2n],['100%',1n]].map(([l,d])=>
+    `<button class="chip" onclick="setAmt('${t.cAddr}','${ethers.formatEther(t.bal/d)}')">${l}</button>`).join('');
+}
 
-      function toggle(c) {
-        ui[c].open = !ui[c].open;
-        document.getElementById("c-" + c).classList.toggle("open", ui[c].open);
-        if (ui[c].open) loadTrades(c);
-      }
-      function setMode(c, m) {
-        ui[c].mode = m;
-        const t = data[c];
-        document.getElementById("c-" + c).outerHTML = card(t);
-        ui[c].open = true;
-        document.getElementById("c-" + c).classList.add("open");
-        loadTrades(c);
-        event.stopPropagation();
-      }
-      function setAmt(c, v) {
-        document.getElementById("amt-" + c).value = Number(v)
-          .toFixed(8)
-          .replace(/0+$/, "")
-          .replace(/\.$/, "");
-        estimate(c);
-      }
+function toggle(c){
+  ui[c].open=!ui[c].open;
+  document.getElementById('c-'+c).classList.toggle('open',ui[c].open);
+  if(ui[c].open) loadTrades(c);
+}
+function setMode(c,m){
+  ui[c].mode=m;
+  const t=data[c];
+  document.getElementById('c-'+c).outerHTML=card(t);
+  ui[c].open=true;
+  document.getElementById('c-'+c).classList.add('open');
+  loadTrades(c);
+  event.stopPropagation();
+}
+function setAmt(c,v){
+  document.getElementById('amt-'+c).value=Number(v).toFixed(8).replace(/0+$/,'').replace(/\.$/,'');
+  estimate(c);
+}
 
-      function estimate(c) {
-        const t = data[c],
-          st = ui[c];
-        const el = document.getElementById("est-" + c);
-        const raw = document.getElementById("amt-" + c).value.trim();
-        if (!raw || isNaN(raw) || Number(raw) <= 0) {
-          el.className = "est";
-          el.innerHTML =
-            st.mode === "buy"
-              ? "max buy " +
-                fmtEth(maxBuyWei(t.vEth, t.vTok, t.realTok), 5) +
-                " ETH — the curve holds no more than that"
-              : "";
-          return;
-        }
-        try {
-          if (st.mode === "buy") {
-            const wei = ethers.parseEther(raw);
-            const mx = maxBuyWei(t.vEth, t.vTok, t.realTok);
-            if (wei > mx) {
-              el.className = "est warn";
-              el.innerHTML = `too big — the curve can only take <b>${fmtEth(mx, 5)} ETH</b> before it graduates. this would revert.`;
-              return;
-            }
-            const out = calcTokensOut(t.vEth, t.vTok, wei);
-            const willGrad =
-              t.realEth + wei - (wei * FEE_BPS) / 10000n >= t.threshold;
-            el.className = "est";
-            el.innerHTML =
-              `≈ <b>${fmtTok(out)} ${esc(t.sym)}</b>` +
-              (willGrad
-                ? ' · <b style="color:var(--good)">this buy graduates it 🎓</b>'
-                : "");
-          } else {
-            const wei = ethers.parseEther(raw);
-            if (wei > t.bal) {
-              el.className = "est warn";
-              el.innerHTML = `you only hold <b>${fmtTok(t.bal)} ${esc(t.sym)}</b>`;
-              return;
-            }
-            const out = calcEthOut(t.vEth, t.vTok, wei, t.realEth);
-            el.className = "est";
-            el.innerHTML = `≈ <b>${fmtEth(out, 6)} ETH</b>`;
-          }
-        } catch (_) {
-          el.className = "est";
-          el.innerHTML = "";
-        }
+function estimate(c){
+  const t=data[c], st=ui[c];
+  const el=document.getElementById('est-'+c);
+  const raw=document.getElementById('amt-'+c).value.trim();
+  if(!raw||isNaN(raw)||Number(raw)<=0){
+    el.className='est';
+    el.innerHTML = st.mode==='buy' ? fmtEth(maxBuyWei(t.vEth,t.vTok,t.realTok),5)+' ETH buys out the whole curve — anything above that is refunded' : '';
+    return;
+  }
+  try{
+    if(st.mode==='buy'){
+      const wei=ethers.parseEther(raw);
+      const mx=maxBuyWei(t.vEth,t.vTok,t.realTok);
+      el.className='est';
+      if(wei>mx){
+        el.innerHTML=`fills the curve: <b>${fmtTok(t.realTok)} ${esc(t.sym)}</b> for ≈ <b>${fmtEth(mx,5)} ETH</b>, `+
+          `the other ≈ <b>${fmtEth(wei-mx,5)} ETH</b> is refunded · <b style="color:var(--good)">graduates it 🎓</b>`;
+        return;
       }
+      const out=calcTokensOut(t.vEth,t.vTok,wei);
+      const willGrad = (t.realEth + wei - wei*FEE_BPS/10000n) >= t.threshold;
+      el.innerHTML=`≈ <b>${fmtTok(out)} ${esc(t.sym)}</b>`+(willGrad?' · <b style="color:var(--good)">this buy graduates it 🎓</b>':'');
+    } else {
+      const wei=ethers.parseEther(raw);
+      if(wei>t.bal){ el.className='est warn'; el.innerHTML=`you only hold <b>${fmtTok(t.bal)} ${esc(t.sym)}</b>`; return; }
+      const out=calcEthOut(t.vEth,t.vTok,wei,t.realEth);
+      el.className='est';
+      el.innerHTML=`≈ <b>${fmtEth(out,6)} ETH</b>`;
+    }
+  }catch(_){ el.className='est'; el.innerHTML=''; }
+}
 
-      async function trade(c) {
-        if (!signer) {
-          msg("Connect your wallet first.", "err");
-          return;
-        }
-        const t = data[c],
-          st = ui[c];
-        const raw = document.getElementById("amt-" + c).value.trim();
-        if (!raw || isNaN(raw) || Number(raw) <= 0) {
-          msg("Enter an amount.", "err");
-          return;
-        }
-        const curve = new ethers.Contract(c, CURVE_ABI, signer);
-        try {
-          if (st.mode === "buy") {
-            const wei = ethers.parseEther(raw);
-            const mx = maxBuyWei(t.vEth, t.vTok, t.realTok);
-            if (wei > mx) {
-              msg(
-                `Buy too large. This curve can absorb at most ${fmtEth(mx, 5)} ETH before graduating.`,
-                "err",
-              );
-              return;
-            }
-            msg("Buying… confirm in wallet", "info");
-            const tx = await curve.buy(0, { value: wei });
-            await tx.wait();
-            msg("Buy confirmed.", "ok");
-          } else {
-            const wei = ethers.parseEther(raw);
-            if (wei > t.bal) {
-              msg("You do not hold that many tokens.", "err");
-              return;
-            }
-            const token = new ethers.Contract(t.tAddr, TOKEN_ABI, signer);
-            const allow = await token.allowance(userAddr, c);
-            if (allow < wei) {
-              msg("Approving… confirm in wallet (1 of 2)", "info");
-              await (await token.approve(c, wei)).wait();
-            }
-            msg("Selling… confirm in wallet (2 of 2)", "info");
-            const tx = await curve.sell(wei, 0);
-            await tx.wait();
-            msg("Sell confirmed.", "ok");
-          }
-          loadTokens();
-        } catch (e) {
-          const m = e.shortMessage || e.message || "";
-          if (m.includes("insufficient token liquidity"))
-            msg(
-              "That buy exceeds what the curve can sell. Use the max button.",
-              "err",
-            );
-          else
-            msg((st.mode === "buy" ? "Buy" : "Sell") + " failed: " + m, "err");
-        }
+async function trade(c){
+  if(!signer){ msg('Connect your wallet first.','err'); return; }
+  const t=data[c], st=ui[c];
+  const raw=document.getElementById('amt-'+c).value.trim();
+  if(!raw||isNaN(raw)||Number(raw)<=0){ msg('Enter an amount.','err'); return; }
+  const curve=new ethers.Contract(c,CURVE_ABI,signer);
+  try{
+    if(st.mode==='buy'){
+      const wei=ethers.parseEther(raw);
+      msg('Buying… confirm in wallet','info');
+      const tx=await curve.buy(0,{value:wei});
+      await tx.wait();
+      msg('Buy confirmed.','ok');
+    } else {
+      const wei=ethers.parseEther(raw);
+      if(wei>t.bal){ msg('You do not hold that many tokens.','err'); return; }
+      const token=new ethers.Contract(t.tAddr,TOKEN_ABI,signer);
+      const allow=await token.allowance(userAddr,c);
+      if(allow<wei){
+        msg('Approving… confirm in wallet (1 of 2)','info');
+        await (await token.approve(c,wei)).wait();
       }
+      msg('Selling… confirm in wallet (2 of 2)','info');
+      const tx=await curve.sell(wei,0);
+      await tx.wait();
+      msg('Sell confirmed.','ok');
+    }
+    loadTokens();
+  }catch(e){
+    const m=e.shortMessage||e.message||'';
+    msg((st.mode==='buy'?'Buy':'Sell')+' failed: '+m,'err');
+  }
+}
 
-      async function loadTrades(c) {
-        const el = document.getElementById("tr-" + c);
-        if (!el || !provider) return;
-        el.innerHTML =
-          '<h4>Recent trades</h4><div class="trade" style="color:var(--dimmer)">loading…</div>';
-        try {
-          const curve = new ethers.Contract(c, CURVE_ABI, provider);
-          const latest = await provider.getBlockNumber();
-          const from = Math.max(0, latest - 45000);
-          const logs = await curve.queryFilter(
-            curve.filters.Trade(),
-            from,
-            latest,
-          );
-          if (!logs.length) {
-            el.innerHTML =
-              '<h4>Recent trades</h4><div class="trade" style="color:var(--dimmer)">no trades yet — be first</div>';
-            return;
-          }
-          const recent = logs.slice(-8).reverse();
-          const stamps = {};
-          await Promise.all(
-            [...new Set(recent.map((l) => l.blockNumber))].map(async (b) => {
-              try {
-                stamps[b] = (await provider.getBlock(b)).timestamp;
-              } catch (_) {}
-            }),
-          );
-          const t = data[c];
-          el.innerHTML =
-            "<h4>Recent trades</h4>" +
-            recent
-              .map((l) => {
-                const { trader, isBuy, ethAmount, tokenAmount } = l.args;
-                const when = stamps[l.blockNumber]
-                  ? ago(stamps[l.blockNumber])
-                  : "";
-                const desc = isBuy
-                  ? `${fmtEth(ethAmount, 5)} ETH <span>→</span> ${fmtTok(tokenAmount)} ${esc(t.sym)}`
-                  : `${fmtTok(tokenAmount)} ${esc(t.sym)} <span>→</span> ${fmtEth(ethAmount, 5)} ETH`;
-                return `<div class="trade">
-        <span class="tside ${isBuy ? "b" : "s"}">${isBuy ? "BUY" : "SELL"}</span>
+async function loadTrades(c){
+  const el=document.getElementById('tr-'+c);
+  if(!el||!provider) return;
+  el.innerHTML='<h4>Recent trades</h4><div class="trade" style="color:var(--dimmer)">loading…</div>';
+  try{
+    const curve=new ethers.Contract(c,CURVE_ABI,provider);
+    const latest=await provider.getBlockNumber();
+    const from=Math.max(0,latest-45000);
+    const logs=await curve.queryFilter(curve.filters.Trade(),from,latest);
+    if(!logs.length){ el.innerHTML='<h4>Recent trades</h4><div class="trade" style="color:var(--dimmer)">no trades yet — be first</div>'; return; }
+    const recent=logs.slice(-8).reverse();
+    const stamps={};
+    await Promise.all([...new Set(recent.map(l=>l.blockNumber))].map(async b=>{
+      try{ stamps[b]=(await provider.getBlock(b)).timestamp; }catch(_){}
+    }));
+    const t=data[c];
+    el.innerHTML='<h4>Recent trades</h4>'+recent.map(l=>{
+      const {trader,isBuy,ethAmount,tokenAmount}=l.args;
+      const when=stamps[l.blockNumber]?ago(stamps[l.blockNumber]):'';
+      const desc=isBuy
+        ? `${fmtEth(ethAmount,5)} ETH <span>→</span> ${fmtTok(tokenAmount)} ${esc(t.sym)}`
+        : `${fmtTok(tokenAmount)} ${esc(t.sym)} <span>→</span> ${fmtEth(ethAmount,5)} ETH`;
+      return `<div class="trade">
+        <span class="tside ${isBuy?'b':'s'}">${isBuy?'BUY':'SELL'}</span>
         <span class="tdesc">${desc}</span>
         <span class="twho">${short(trader)} ${when}</span>
       </div>`;
-              })
-              .join("");
-        } catch (e) {
-          el.innerHTML =
-            '<h4>Recent trades</h4><div class="trade" style="color:var(--dimmer)">history unavailable on this RPC</div>';
-        }
-      }
-    </script>
-  </body>
+    }).join('');
+  }catch(e){
+    el.innerHTML='<h4>Recent trades</h4><div class="trade" style="color:var(--dimmer)">history unavailable on this RPC</div>';
+  }
+}
+</script>
+</body>
 </html>
