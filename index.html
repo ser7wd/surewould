@@ -382,6 +382,43 @@
         margin-bottom: 12px;
         min-height: 17px;
       }
+      .ask {
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: -0.2px;
+        margin-bottom: 8px;
+      }
+      #balLabel {
+        font-weight: 800;
+      }
+      #balLabel:not(:empty)::after {
+        content: "·";
+        color: var(--dimmer);
+        margin: 0 6px;
+        font-weight: 600;
+      }
+      #netLabel {
+        color: var(--dim);
+        font-weight: 600;
+      }
+      .pill.low #balLabel {
+        color: var(--accent);
+      }
+      .faucet {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--dim);
+        margin-bottom: 14px;
+        display: none;
+      }
+      .faucet a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 700;
+      }
+      .faucet.show {
+        display: block;
+      }
       .est b {
         color: var(--text);
         font-weight: 800;
@@ -508,8 +545,8 @@
         <div
           style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap"
         >
-          <span class="pill"
-            ><span class="dot" id="netDot"></span
+          <span class="pill" id="walletPill"
+            ><span class="dot" id="netDot"></span> <b id="balLabel"></b
             ><span id="netLabel">not connected</span></span
           >
           <button class="btn primary" id="connectBtn" onclick="connectWallet()">
@@ -521,6 +558,17 @@
         would you launch a token on Robinhood Chain? sure would. no presale,
         trades instantly, graduates to Uniswap.
       </p>
+
+      <div class="faucet" id="faucetLine">
+        testnet — grab free test ETH from the
+        <a
+          href="https://faucet.testnet.chain.robinhood.com"
+          target="_blank"
+          rel="noopener"
+          >faucet</a
+        >
+        (0.01 ETH per day, enough for ~3 launches)
+      </div>
 
       <div class="status-msg" id="statusMsg"></div>
 
@@ -550,7 +598,8 @@
             ><input id="launchName" placeholder="Cash Cow" />
           </div>
           <div>
-            <label>Symbol</label><input id="launchSymbol" placeholder="MOO" />
+            <label>Symbol</label
+            ><input id="launchSymbol" placeholder="MOO" oninput="updateAsk()" />
           </div>
           <div>
             <label
@@ -566,6 +615,7 @@
             />
           </div>
         </div>
+        <div class="ask" id="launchAsk">Create token?</div>
         <button class="btn primary" id="launchBtn" onclick="launchToken()">
           Sure would.
         </button>
@@ -659,6 +709,30 @@
           if (s) s.style.display = "none";
         }
       })();
+
+      async function refreshBalance() {
+        if (!provider || !userAddr) return;
+        try {
+          const bal = await provider.getBalance(userAddr);
+          const eth = Number(ethers.formatEther(bal));
+          document.getElementById("balLabel").textContent =
+            eth.toFixed(eth < 0.01 ? 5 : 4) + " ETH";
+          const isTestnet =
+            document.getElementById("networkSelect").value === "testnet";
+          const low = eth < 0.0005;
+          document.getElementById("walletPill").classList.toggle("low", low);
+          document
+            .getElementById("faucetLine")
+            .classList.toggle("show", isTestnet && low);
+        } catch (_) {}
+      }
+
+      function updateAsk() {
+        const s = document.getElementById("launchSymbol").value.trim();
+        document.getElementById("launchAsk").textContent = s
+          ? "Create $" + s + "?"
+          : "Create token?";
+      }
 
       function net() {
         return NETWORKS[document.getElementById("networkSelect").value];
@@ -776,6 +850,7 @@
             short(userAddr) + " · " + net().name;
           document.getElementById("connectBtn").textContent = "Connected";
           msg("Wallet connected.", "ok");
+          refreshBalance();
           if (document.getElementById("factoryAddr").value.trim()) loadTokens();
         } catch (e) {
           msg("Connect failed: " + (e.shortMessage || e.message), "err");
@@ -817,6 +892,7 @@
             .then(() => {
               document.getElementById("netLabel").textContent =
                 short(userAddr) + " · " + net().name;
+              refreshBalance();
               loadTokens();
             })
             .catch((e) =>
@@ -858,6 +934,7 @@
           document.getElementById("launchName").value = "";
           document.getElementById("launchSymbol").value = "";
           document.getElementById("launchBuy").value = "";
+          updateAsk();
           loadTokens();
         } catch (e) {
           msg("Launch failed: " + (e.shortMessage || e.message), "err");
@@ -935,6 +1012,7 @@
             cards.push(card(data[cAddr]));
           }
           el.innerHTML = cards.join("");
+          refreshBalance();
           // load trade history for any open card
           Object.keys(ui).forEach((c) => {
             if (ui[c].open) loadTrades(c);
@@ -985,9 +1063,8 @@
              inputmode="decimal" oninput="estimate('${t.cAddr}')">
       <div class="chips">${chips(t, st)}</div>
       <div class="est" id="est-${t.cAddr}">${st.mode === "buy" ? "max buy " + fmtEth(maxBuyWei(t.vEth, t.vTok, t.realTok), 5) + " ETH — the curve holds no more than that" : ""}</div>
-      <button class="btn go ${st.mode === "sell" ? "sellmode" : ""}" onclick="trade('${t.cAddr}')">
-        ${st.mode === "buy" ? `Buy $${esc(t.sym)}? Sure would.` : `Sell $${esc(t.sym)}`}
-      </button>
+      <div class="ask">${st.mode === "buy" ? "Buy" : "Sell"} $${esc(t.sym)}?</div>
+      <button class="btn go ${st.mode === "sell" ? "sellmode" : ""}" onclick="trade('${t.cAddr}')">Sure would.</button>
       <div class="trades" id="tr-${t.cAddr}"></div>
     </div>`
     }
